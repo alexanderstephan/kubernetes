@@ -60,9 +60,9 @@ type ThreadSafeStore interface {
 
 // storeIndex implements the indexing functionality for Store interface
 type storeIndex struct {
-	// indexers maps a name to an IndexFunc
+	// indexers maps a Name to an IndexFunc
 	indexers Indexers
-	// indices maps a name to an Index
+	// indices maps a Name to an Index
 	indices Indices
 }
 
@@ -73,7 +73,7 @@ func (i *storeIndex) reset() {
 func (i *storeIndex) getKeysFromIndex(indexName string, obj interface{}) (sets.String, error) {
 	indexFunc := i.indexers[indexName]
 	if indexFunc == nil {
-		return nil, fmt.Errorf("Index with name %s does not exist", indexName)
+		return nil, fmt.Errorf("Index with Name %s does not exist", indexName)
 	}
 
 	indexedValues, err := indexFunc(obj)
@@ -104,7 +104,7 @@ func (i *storeIndex) getKeysFromIndex(indexName string, obj interface{}) (sets.S
 func (i *storeIndex) getKeysByIndex(indexName, indexedValue string) (sets.String, error) {
 	indexFunc := i.indexers[indexName]
 	if indexFunc == nil {
-		return nil, fmt.Errorf("Index with name %s does not exist", indexName)
+		return nil, fmt.Errorf("Index with Name %s does not exist", indexName)
 	}
 
 	index := i.indices[indexName]

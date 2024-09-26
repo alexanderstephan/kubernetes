@@ -38,7 +38,7 @@ import (
 // SharedInformer provides eventually consistent linkage of its
 // clients to the authoritative state of a given collection of
 // objects.  An object is identified by its API group, kind/resource,
-// namespace (if any), and name; the `ObjectMeta.UID` is not part of
+// namespace (if any), and Name; the `ObjectMeta.UID` is not part of
 // an object's ID as far as this contract is concerned.  One
 // SharedInformer provides linkage to objects of a particular API
 // group and kind/resource.  The linked object collection of a
@@ -89,15 +89,15 @@ import (
 // too soon, the authoritative state service ends, or communication
 // problems persistently thwart the desired result).
 //
-// The keys in the Store are of the form namespace/name for namespaced
-// objects, and are simply the name for non-namespaced objects.
+// The keys in the Store are of the form namespace/Name for namespaced
+// objects, and are simply the Name for non-namespaced objects.
 // Clients can use `MetaNamespaceKeyFunc(obj)` to extract the key for
 // a given object, and `SplitMetaNamespaceKey(key)` to split a key
 // into its constituent parts.
 //
 // Every query against the local cache is answered entirely from one
 // snapshot of the cache's state.  Thus, the result of a `List` call
-// will not contain two entries with the same namespace and name.
+// will not contain two entries with the same namespace and Name.
 //
 // A client is identified here by a ResourceEventHandler.  For every
 // update to the SharedInformer's local cache and for every client
@@ -116,7 +116,7 @@ import (
 // delivered sequentially.  For a given SharedInformer, client, and
 // object ID, the notifications are delivered in order.  Because
 // `ObjectMeta.UID` has no role in identifying objects, it is possible
-// that when (1) object O1 with ID (e.g. namespace and name) X and
+// that when (1) object O1 with ID (e.g. namespace and Name) X and
 // `ObjectMeta.UID` U1 in the SharedInformer's local cache is deleted
 // and later (2) another object O2 with ID X and ObjectMeta.UID U2 is
 // created the informer's clients are not notified of (1) and (2) but
@@ -307,7 +307,7 @@ const (
 )
 
 // WaitForNamedCacheSync is a wrapper around WaitForCacheSync that generates log messages
-// indicating that the caller identified by name is waiting for syncs, followed by
+// indicating that the caller identified by Name is waiting for syncs, followed by
 // either a successful or failed sync.
 func WaitForNamedCacheSync(controllerName string, stopCh <-chan struct{}, cacheSyncs ...InformerSynced) bool {
 	klog.Infof("Waiting for caches to sync for %s", controllerName)

@@ -29,7 +29,7 @@ import (
 //
 // There are three kinds of strings here:
 //  1. a storage key, as defined in the Store interface,
-//  2. a name of an index, and
+//  2. a Name of an index, and
 //  3. an "indexed value", which is produced by an IndexFunc and
 //     can be a field value or any other string computed from the object.
 type Indexer interface {
@@ -77,7 +77,7 @@ func IndexFuncToKeyFuncAdapter(indexFunc IndexFunc) KeyFunc {
 }
 
 const (
-	// NamespaceIndex is the lookup name for the most common index function, which is to index by the namespace field.
+	// NamespaceIndex is the lookup Name for the most common index function, which is to index by the namespace field.
 	NamespaceIndex string = "namespace"
 )
 
@@ -93,8 +93,8 @@ func MetaNamespaceIndexFunc(obj interface{}) ([]string, error) {
 // Index maps the indexed value to a set of keys in the store that match on that value
 type Index map[string]sets.String
 
-// Indexers maps a name to an IndexFunc
+// Indexers maps a Name to an IndexFunc
 type Indexers map[string]IndexFunc
 
-// Indices maps a name to an Index
+// Indices maps a Name to an Index
 type Indices map[string]Index

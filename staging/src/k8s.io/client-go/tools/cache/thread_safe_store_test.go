@@ -180,7 +180,7 @@ func BenchmarkIndexer(b *testing.B) {
 
 	// The following benchmark imitates what is happening in indexes
 	// used in storage layer, where indexing is mostly static (e.g.
-	// indexing objects by their (namespace, name)).
+	// indexing objects by their (namespace, Name)).
 	// The 5000 number imitates indexing nodes in 5000-node cluster.
 	objectCount := 5000
 	objects := make([]string, 0, 5000)

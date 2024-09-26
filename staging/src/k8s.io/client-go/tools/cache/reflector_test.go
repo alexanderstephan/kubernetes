@@ -231,7 +231,7 @@ func TestReflectorHandleWatchStoppedBefore(t *testing.T) {
 			return resultCh
 		},
 	}
-	err := handleWatch(time.Now(), fw, s, g.expectedType, g.expectedGVK, g.name, g.typeDescription, g.setLastSyncResourceVersion, g.clock, nevererrc, stopCh)
+	err := handleWatch(time.Now(), fw, s, g.expectedType, g.expectedGVK, g.Name, g.TypeDescription, g.setLastSyncResourceVersion, g.clock, nevererrc, stopCh)
 	if err == nil {
 		t.Errorf("unexpected non-error")
 	}
@@ -267,7 +267,7 @@ func TestReflectorHandleWatchStoppedAfter(t *testing.T) {
 			return resultCh
 		},
 	}
-	err := handleWatch(time.Now(), fw, s, g.expectedType, g.expectedGVK, g.name, g.typeDescription, g.setLastSyncResourceVersion, g.clock, nevererrc, stopCh)
+	err := handleWatch(time.Now(), fw, s, g.expectedType, g.expectedGVK, g.Name, g.TypeDescription, g.setLastSyncResourceVersion, g.clock, nevererrc, stopCh)
 	if err == nil {
 		t.Errorf("unexpected non-error")
 	}
@@ -295,7 +295,7 @@ func TestReflectorHandleWatchResultChanClosedBefore(t *testing.T) {
 	}
 	// Simulate the result channel being closed by the producer before handleWatch is called.
 	close(resultCh)
-	err := handleWatch(time.Now(), fw, s, g.expectedType, g.expectedGVK, g.name, g.typeDescription, g.setLastSyncResourceVersion, g.clock, nevererrc, wait.NeverStop)
+	err := handleWatch(time.Now(), fw, s, g.expectedType, g.expectedGVK, g.Name, g.TypeDescription, g.setLastSyncResourceVersion, g.clock, nevererrc, wait.NeverStop)
 	if err == nil {
 		t.Errorf("unexpected non-error")
 	}
@@ -328,7 +328,7 @@ func TestReflectorHandleWatchResultChanClosedAfter(t *testing.T) {
 			return resultCh
 		},
 	}
-	err := handleWatch(time.Now(), fw, s, g.expectedType, g.expectedGVK, g.name, g.typeDescription, g.setLastSyncResourceVersion, g.clock, nevererrc, wait.NeverStop)
+	err := handleWatch(time.Now(), fw, s, g.expectedType, g.expectedGVK, g.Name, g.TypeDescription, g.setLastSyncResourceVersion, g.clock, nevererrc, wait.NeverStop)
 	if err == nil {
 		t.Errorf("unexpected non-error")
 	}
@@ -362,7 +362,7 @@ func TestReflectorWatchHandler(t *testing.T) {
 		fw.Add(&v1.Pod{ObjectMeta: metav1.ObjectMeta{Name: "baz", ResourceVersion: "32"}})
 		fw.Stop()
 	}()
-	err := handleWatch(time.Now(), fw, s, g.expectedType, g.expectedGVK, g.name, g.typeDescription, setLastSyncResourceVersion, g.clock, nevererrc, stopCh)
+	err := handleWatch(time.Now(), fw, s, g.expectedType, g.expectedGVK, g.Name, g.TypeDescription, setLastSyncResourceVersion, g.clock, nevererrc, stopCh)
 	// TODO(karlkfi): Fix FakeWatcher to avoid race condition between watcher.Stop() & close(stopCh)
 	if err != nil && !errors.Is(err, errorStopRequested) {
 		t.Errorf("unexpected error %v", err)
@@ -407,7 +407,7 @@ func TestReflectorStopWatch(t *testing.T) {
 	fw := watch.NewFake()
 	stopWatch := make(chan struct{})
 	close(stopWatch)
-	err := handleWatch(time.Now(), fw, s, g.expectedType, g.expectedGVK, g.name, g.typeDescription, g.setLastSyncResourceVersion, g.clock, nevererrc, stopWatch)
+	err := handleWatch(time.Now(), fw, s, g.expectedType, g.expectedGVK, g.Name, g.TypeDescription, g.setLastSyncResourceVersion, g.clock, nevererrc, stopWatch)
 	if err != errorStopRequested {
 		t.Errorf("expected stop error, got %q", err)
 	}
@@ -629,7 +629,7 @@ func TestReflectorListAndWatchInitConnBackoff(t *testing.T) {
 					},
 				}
 				r := &Reflector{
-					name:              "test-reflector",
+					Name:              "test-reflector",
 					listerWatcher:     lw,
 					store:             NewFIFO(MetaNamespaceKeyFunc),
 					backoffManager:    bm,
@@ -689,7 +689,7 @@ func TestBackoffOnTooManyRequests(t *testing.T) {
 	}
 
 	r := &Reflector{
-		name:              "test-reflector",
+		Name:              "test-reflector",
 		listerWatcher:     lw,
 		store:             NewFIFO(MetaNamespaceKeyFunc),
 		backoffManager:    bm,
@@ -730,7 +730,7 @@ func TestNoRelistOnTooManyRequests(t *testing.T) {
 	}
 
 	r := &Reflector{
-		name:              "test-reflector",
+		Name:              "test-reflector",
 		listerWatcher:     lw,
 		store:             NewFIFO(MetaNamespaceKeyFunc),
 		backoffManager:    bm,
@@ -804,7 +804,7 @@ func TestRetryInternalError(t *testing.T) {
 		}
 
 		r := &Reflector{
-			name:              "test-reflector",
+			Name:              "test-reflector",
 			listerWatcher:     lw,
 			store:             NewFIFO(MetaNamespaceKeyFunc),
 			backoffManager:    bm,
@@ -1283,7 +1283,7 @@ func TestGetTypeDescriptionFromObject(t *testing.T) {
 		t.Run(testName, func(t *testing.T) {
 			typeDescription := getTypeDescriptionFromObject(tc.inputType)
 			if tc.expectedTypeDescription != typeDescription {
-				t.Fatalf("Expected typeDescription %v, got %v", tc.expectedTypeDescription, typeDescription)
+				t.Fatalf("Expected TypeDescription %v, got %v", tc.expectedTypeDescription, typeDescription)
 			}
 		})
 	}

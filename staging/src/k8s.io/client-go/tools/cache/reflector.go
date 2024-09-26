@@ -57,13 +57,13 @@ var (
 
 // Reflector watches a specified resource and causes all changes to be reflected in the given store.
 type Reflector struct {
-	// name identifies this reflector. By default it will be a file:line if possible.
-	name string
-	// The name of the type we expect to place in the store. The name
+	// Name identifies this reflector. By default, it will be a file:line if possible.
+	Name string
+	// The Name of the type we expect to place in the store. The Name
 	// will be the stringification of expectedGVK if provided, and the
 	// stringification of expectedType otherwise. It is for display
 	// only, and should not be used for parsing or comparison.
-	typeDescription string
+	TypeDescription string
 	// An example object of the type we expect to place in the store.
 	// Only the type needs to be right, except that when that is
 	// `unstructured.Unstructured` the object's `"apiVersion"` and
@@ -149,13 +149,13 @@ func DefaultWatchErrorHandler(r *Reflector, err error) {
 		// Don't set LastSyncResourceVersionUnavailable - LIST call with ResourceVersion=RV already
 		// has a semantic that it returns data at least as fresh as provided RV.
 		// So first try to LIST with setting RV to resource version of last observed object.
-		klog.V(4).Infof("%s: watch of %v closed with: %v", r.name, r.typeDescription, err)
+		klog.V(4).Infof("%s: watch of %v closed with: %v", r.Name, r.TypeDescription, err)
 	case err == io.EOF:
 		// watch closed normally
 	case err == io.ErrUnexpectedEOF:
-		klog.V(1).Infof("%s: Watch for %v closed with unexpected EOF: %v", r.name, r.typeDescription, err)
+		klog.V(1).Infof("%s: Watch for %v closed with unexpected EOF: %v", r.Name, r.TypeDescription, err)
 	default:
-		utilruntime.HandleError(fmt.Errorf("%s: Failed to watch %v: %v", r.name, r.typeDescription, err))
+		utilruntime.HandleError(fmt.Errorf("%s: Failed to watch %v: %v", r.Name, r.TypeDescription, err))
 	}
 }
 
@@ -167,13 +167,13 @@ func NewNamespaceKeyedIndexerAndReflector(lw ListerWatcher, expectedType interfa
 	return indexer, reflector
 }
 
-// NewReflector creates a new Reflector with its name defaulted to the closest source_file.go:line in the call stack
+// NewReflector creates a new Reflector with its Name defaulted to the closest source_file.go:line in the call stack
 // that is outside this package. See NewReflectorWithOptions for further information.
 func NewReflector(lw ListerWatcher, expectedType interface{}, store Store, resyncPeriod time.Duration) *Reflector {
 	return NewReflectorWithOptions(lw, expectedType, store, ReflectorOptions{ResyncPeriod: resyncPeriod})
 }
 
-// NewNamedReflector creates a new Reflector with the specified name. See NewReflectorWithOptions for further
+// NewNamedReflector creates a new Reflector with the specified Name. See NewReflectorWithOptions for further
 // information.
 func NewNamedReflector(name string, lw ListerWatcher, expectedType interface{}, store Store, resyncPeriod time.Duration) *Reflector {
 	return NewReflectorWithOptions(lw, expectedType, store, ReflectorOptions{Name: name, ResyncPeriod: resyncPeriod})
@@ -181,7 +181,7 @@ func NewNamedReflector(name string, lw ListerWatcher, expectedType interface{}, 
 
 // ReflectorOptions configures a Reflector.
 type ReflectorOptions struct {
-	// Name is the Reflector's name. If unset/unspecified, the name defaults to the closest source_file.go:line
+	// Name is the Reflector's Name. If unset/unspecified, the Name defaults to the closest source_file.go:line
 	// in the call stack that is outside this package.
 	Name string
 
@@ -224,10 +224,10 @@ func NewReflectorWithOptions(lw ListerWatcher, expectedType interface{}, store S
 		minWatchTimeout = options.MinWatchTimeout
 	}
 	r := &Reflector{
-		name:            options.Name,
+		Name:            options.Name,
 		resyncPeriod:    options.ResyncPeriod,
 		minWatchTimeout: minWatchTimeout,
-		typeDescription: options.TypeDescription,
+		TypeDescription: options.TypeDescription,
 		listerWatcher:   lw,
 		store:           store,
 		// We used to make the call every 1sec (1 QPS), the goal here is to achieve ~98% traffic reduction when
@@ -239,12 +239,12 @@ func NewReflectorWithOptions(lw ListerWatcher, expectedType interface{}, store S
 		expectedType:      reflect.TypeOf(expectedType),
 	}
 
-	if r.name == "" {
-		r.name = naming.GetNameFromCallsite(internalPackages...)
+	if r.Name == "" {
+		r.Name = naming.GetNameFromCallsite(internalPackages...)
 	}
 
-	if r.typeDescription == "" {
-		r.typeDescription = getTypeDescriptionFromObject(expectedType)
+	if r.TypeDescription == "" {
+		r.TypeDescription = getTypeDescriptionFromObject(expectedType)
 	}
 
 	if r.expectedGVK == nil {
@@ -294,7 +294,7 @@ func getExpectedGVKFromObject(expectedType interface{}) *schema.GroupVersionKind
 	return &gvk
 }
 
-// internalPackages are packages that ignored when creating a default reflector name. These packages are in the common
+// internalPackages are packages that ignored when creating a default reflector Name. These packages are in the common
 // call chains to NewReflector, so they'd be low entropy names for reflectors
 var internalPackages = []string{"client-go/tools/cache/"}
 
@@ -302,13 +302,13 @@ var internalPackages = []string{"client-go/tools/cache/"}
 // objects and subsequent deltas.
 // Run will exit when stopCh is closed.
 func (r *Reflector) Run(stopCh <-chan struct{}) {
-	klog.V(3).Infof("Starting reflector %s (%s) from %s", r.typeDescription, r.resyncPeriod, r.name)
+	klog.V(3).Infof("Starting reflector %s (%s) from %s", r.TypeDescription, r.resyncPeriod, r.Name)
 	wait.BackoffUntil(func() {
 		if err := r.ListAndWatch(stopCh); err != nil {
 			r.watchErrorHandler(r, err)
 		}
 	}, r.backoffManager, true, stopCh)
-	klog.V(3).Infof("Stopping reflector %s (%s) from %s", r.typeDescription, r.resyncPeriod, r.name)
+	klog.V(3).Infof("Stopping reflector %s (%s) from %s", r.TypeDescription, r.resyncPeriod, r.Name)
 }
 
 var (
@@ -338,7 +338,7 @@ func (r *Reflector) resyncChan() (<-chan time.Time, func() bool) {
 // and then use the resource version to watch.
 // It returns error if ListAndWatch didn't even try to initialize watch.
 func (r *Reflector) ListAndWatch(stopCh <-chan struct{}) error {
-	klog.V(3).Infof("Listing and watching %v from %s", r.typeDescription, r.name)
+	klog.V(3).Infof("Listing and watching %v from %s", r.TypeDescription, r.Name)
 	var err error
 	var w watch.Interface
 	useWatchList := ptr.Deref(r.UseWatchList, false)
@@ -365,7 +365,7 @@ func (r *Reflector) ListAndWatch(stopCh <-chan struct{}) error {
 		}
 	}
 
-	klog.V(2).Infof("Caches populated for %v from %s", r.typeDescription, r.name)
+	klog.V(2).Infof("Caches populated for %v from %s", r.TypeDescription, r.Name)
 	return r.watchWithResync(w, stopCh)
 }
 
@@ -386,7 +386,7 @@ func (r *Reflector) startResync(stopCh <-chan struct{}, cancelCh <-chan struct{}
 			return
 		}
 		if r.ShouldResync == nil || r.ShouldResync() {
-			klog.V(4).Infof("%s: forcing resync", r.name)
+			klog.V(4).Infof("%s: forcing resync", r.Name)
 			if err := r.store.Resync(); err != nil {
 				resyncerrc <- err
 				return
@@ -443,7 +443,7 @@ func (r *Reflector) watch(w watch.Interface, stopCh <-chan struct{}, resyncerrc 
 			w, err = r.listerWatcher.Watch(options)
 			if err != nil {
 				if canRetry := isWatchErrorRetriable(err); canRetry {
-					klog.V(4).Infof("%s: watch of %v returned %v - backing off", r.name, r.typeDescription, err)
+					klog.V(4).Infof("%s: watch of %v returned %v - backing off", r.Name, r.TypeDescription, err)
 					select {
 					case <-stopCh:
 						return nil
@@ -455,7 +455,7 @@ func (r *Reflector) watch(w watch.Interface, stopCh <-chan struct{}, resyncerrc 
 			}
 		}
 
-		err = handleWatch(start, w, r.store, r.expectedType, r.expectedGVK, r.name, r.typeDescription, r.setLastSyncResourceVersion,
+		err = handleWatch(start, w, r.store, r.expectedType, r.expectedGVK, r.Name, r.TypeDescription, r.setLastSyncResourceVersion,
 			r.clock, resyncerrc, stopCh)
 		// Ensure that watch will not be reused across iterations.
 		w.Stop()
@@ -468,9 +468,9 @@ func (r *Reflector) watch(w watch.Interface, stopCh <-chan struct{}, resyncerrc 
 					// Don't set LastSyncResourceVersionUnavailable - LIST call with ResourceVersion=RV already
 					// has a semantic that it returns data at least as fresh as provided RV.
 					// So first try to LIST with setting RV to resource version of last observed object.
-					klog.V(4).Infof("%s: watch of %v closed with: %v", r.name, r.typeDescription, err)
+					klog.V(4).Infof("%s: watch of %v closed with: %v", r.Name, r.TypeDescription, err)
 				case apierrors.IsTooManyRequests(err):
-					klog.V(2).Infof("%s: watch of %v returned 429 - backing off", r.name, r.typeDescription)
+					klog.V(2).Infof("%s: watch of %v returned 429 - backing off", r.Name, r.TypeDescription)
 					select {
 					case <-stopCh:
 						return nil
@@ -478,10 +478,10 @@ func (r *Reflector) watch(w watch.Interface, stopCh <-chan struct{}, resyncerrc 
 						continue
 					}
 				case apierrors.IsInternalError(err) && retry.ShouldRetry():
-					klog.V(2).Infof("%s: retrying watch of %v internal error: %v", r.name, r.typeDescription, err)
+					klog.V(2).Infof("%s: retrying watch of %v internal error: %v", r.Name, r.TypeDescription, err)
 					continue
 				default:
-					klog.Warningf("%s: watch of %v ended with: %v", r.name, r.typeDescription, err)
+					klog.Warningf("%s: watch of %v ended with: %v", r.Name, r.TypeDescription, err)
 				}
 			}
 			return nil
@@ -495,7 +495,7 @@ func (r *Reflector) list(stopCh <-chan struct{}) error {
 	var resourceVersion string
 	options := metav1.ListOptions{ResourceVersion: r.relistResourceVersion()}
 
-	initTrace := trace.New("Reflector ListAndWatch", trace.Field{Key: "name", Value: r.name})
+	initTrace := trace.New("Reflector ListAndWatch", trace.Field{Key: "Name", Value: r.Name})
 	defer initTrace.LogIfLong(10 * time.Second)
 	var list runtime.Object
 	var paginatedResult bool
@@ -558,8 +558,8 @@ func (r *Reflector) list(stopCh <-chan struct{}) error {
 	}
 	initTrace.Step("Objects listed", trace.Field{Key: "error", Value: err})
 	if err != nil {
-		klog.Warningf("%s: failed to list %v: %v", r.name, r.typeDescription, err)
-		return fmt.Errorf("failed to list %v: %w", r.typeDescription, err)
+		klog.Warningf("%s: failed to list %v: %v", r.Name, r.TypeDescription, err)
+		return fmt.Errorf("failed to list %v: %w", r.TypeDescription, err)
 	}
 
 	// We check if the list was paginated and if so set the paginatedResult based on that.
@@ -626,7 +626,7 @@ func (r *Reflector) watchList(stopCh <-chan struct{}) (watch.Interface, error) {
 	//  could be unified with the r.watch method
 	isErrorRetriableWithSideEffectsFn := func(err error) bool {
 		if canRetry := isWatchErrorRetriable(err); canRetry {
-			klog.V(2).Infof("%s: watch-list of %v returned %v - backing off", r.name, r.typeDescription, err)
+			klog.V(2).Infof("%s: watch-list of %v returned %v - backing off", r.Name, r.TypeDescription, err)
 			<-r.backoffManager.Backoff().C()
 			return true
 		}
@@ -641,7 +641,7 @@ func (r *Reflector) watchList(stopCh <-chan struct{}) (watch.Interface, error) {
 		return false
 	}
 
-	initTrace := trace.New("Reflector WatchList", trace.Field{Key: "name", Value: r.name})
+	initTrace := trace.New("Reflector WatchList", trace.Field{Key: "Name", Value: r.Name})
 	defer initTrace.LogIfLong(10 * time.Second)
 	for {
 		select {
@@ -673,7 +673,7 @@ func (r *Reflector) watchList(stopCh <-chan struct{}) (watch.Interface, error) {
 			}
 			return nil, err
 		}
-		watchListBookmarkReceived, err := handleListWatch(start, w, temporaryStore, r.expectedType, r.expectedGVK, r.name, r.typeDescription,
+		watchListBookmarkReceived, err := handleListWatch(start, w, temporaryStore, r.expectedType, r.expectedGVK, r.Name, r.TypeDescription,
 			func(rv string) { resourceVersion = rv },
 			r.clock, make(chan error), stopCh)
 		if err != nil {
@@ -698,7 +698,7 @@ func (r *Reflector) watchList(stopCh <-chan struct{}) (watch.Interface, error) {
 	// we utilize the temporaryStore to ensure independence from the current store implementation.
 	// as of today, the store is implemented as a queue and will be drained by the higher-level
 	// component as soon as it finishes replacing the content.
-	checkWatchListDataConsistencyIfRequested(wait.ContextForChannel(stopCh), r.name, resourceVersion, wrapListFuncWithContext(r.listerWatcher.List), temporaryStore.List)
+	checkWatchListDataConsistencyIfRequested(wait.ContextForChannel(stopCh), r.Name, resourceVersion, wrapListFuncWithContext(r.listerWatcher.List), temporaryStore.List)
 
 	if err := r.store.Replace(temporaryStore.List(), resourceVersion); err != nil {
 		return nil, fmt.Errorf("unable to sync watch-list result: %w", err)

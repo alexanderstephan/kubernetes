@@ -100,7 +100,7 @@ func ListAllByNamespace(indexer Indexer, namespace string, selector labels.Selec
 type GenericLister interface {
 	// List will return all objects across namespaces
 	List(selector labels.Selector) (ret []runtime.Object, err error)
-	// Get will attempt to retrieve assuming that name==key
+	// Get will attempt to retrieve assuming that Name==key
 	Get(name string) (runtime.Object, error)
 	// ByNamespace will give you a GenericNamespaceLister for one namespace
 	ByNamespace(namespace string) GenericNamespaceLister
@@ -110,7 +110,7 @@ type GenericLister interface {
 type GenericNamespaceLister interface {
 	// List will return all objects in this namespace
 	List(selector labels.Selector) (ret []runtime.Object, err error)
-	// Get will attempt to retrieve by namespace and name
+	// Get will attempt to retrieve by namespace and Name
 	Get(name string) (runtime.Object, error)
 }
 

@@ -97,8 +97,8 @@ type ExplicitKey string
 
 // MetaNamespaceKeyFunc is a convenient default KeyFunc which knows how to make
 // keys for API objects which implement meta.Interface.
-// The key uses the format <namespace>/<name> unless <namespace> is empty, then
-// it's just <name>.
+// The key uses the format <namespace>/<Name> unless <namespace> is empty, then
+// it's just <Name>.
 //
 // Clients that want a structured alternative can use ObjectToName or MetaObjectToName.
 // Note: this would not be a client that wants a key for a Store because those are
@@ -116,7 +116,7 @@ func MetaNamespaceKeyFunc(obj interface{}) (string, error) {
 	return objName.String(), nil
 }
 
-// ObjectToName returns the structured name for the given object,
+// ObjectToName returns the structured Name for the given object,
 // if indeed it can be viewed as a metav1.Object.
 func ObjectToName(obj interface{}) (ObjectName, error) {
 	meta, err := meta.Accessor(obj)
@@ -126,7 +126,7 @@ func ObjectToName(obj interface{}) (ObjectName, error) {
 	return MetaObjectToName(meta), nil
 }
 
-// MetaObjectToName returns the structured name for the given object
+// MetaObjectToName returns the structured Name for the given object
 func MetaObjectToName(obj metav1.Object) ObjectName {
 	if len(obj.GetNamespace()) > 0 {
 		return ObjectName{Namespace: obj.GetNamespace(), Name: obj.GetName()}
@@ -134,7 +134,7 @@ func MetaObjectToName(obj metav1.Object) ObjectName {
 	return ObjectName{Namespace: "", Name: obj.GetName()}
 }
 
-// SplitMetaNamespaceKey returns the namespace and name that
+// SplitMetaNamespaceKey returns the namespace and Name that
 // MetaNamespaceKeyFunc encoded into key.
 //
 // TODO: replace key-as-string with a key-as-struct so that this
@@ -143,10 +143,10 @@ func SplitMetaNamespaceKey(key string) (namespace, name string, err error) {
 	parts := strings.Split(key, "/")
 	switch len(parts) {
 	case 1:
-		// name only, no namespace
+		// Name only, no namespace
 		return "", parts[0], nil
 	case 2:
-		// namespace and name
+		// namespace and Name
 		return parts[0], parts[1], nil
 	}
 
